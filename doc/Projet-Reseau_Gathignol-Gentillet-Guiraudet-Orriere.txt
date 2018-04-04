@@ -1,0 +1,242 @@
+﻿
+			Project GGGO SpaceX - Version 1
+
+Status of this Memo
+
+	This document specifies an TCP/UDP protocol for the Internet community,
+	and requests discussion and suggestions for improvements.  Please refer
+	to the current edition of the "Internet Official Protocol Standards"
+	(STD 1) for the standardization state and status of this protocol.
+	Distribution of this memo is unlimited.
+
+Table of Contents
+
+	Introduction        
+	The CONNECTION Stage        
+	CONNECT        
+	The CONNECTED Stage        
+	INIT        
+	PAUSE        
+	PLAY      
+	SETPSEUDO        
+	LASTUPDATE        
+	GETMAP        
+	QUIT        
+	Optional ROBOT Commands       
+	GETATPOS        
+	MOVETO        
+	APPSTATUS        
+	Authors        
+
+1. Introduction
+
+	This application is a two dimensional table filled with ressources on
+	each cell. The user can connect using a name and initiate a robot on
+	one of these cells, from their he can move and collect the resources
+	he moves on.
+
+
+	It is possible for the user to pause his robot, as well as resuming
+	it’s state. By disconnecting, the user leaves his robot to anyone to
+	connect to his robot using the name he gave him.
+
+
+2. The CONNECTION Stage
+
+	When the client wishes to connect to the server, stuff happens here.
+
+	CONNECT
+
+		Arguments: a port ‘String’ (required), and a robot name
+			‘String’ (required)
+
+		Restrictions: robot’s name available or disconnected
+
+		Discussion: 
+			Connect the user to the port with the robot’s name if available
+			or disconnected, returns the map.
+
+		Possible Responses:
+			101 => Connection succeed : Map{[Int, Int]:String}
+			201 => Robot name taken : None
+			301 => Critical error : None
+
+3. The CONNECTED Stage
+
+	After CONNECTION Stage. Robot has 3 states (connected, pause, disconnected).
+
+	disconnected <-> connected <-> pause -> disconnected
+
+	INIT 
+
+		Arguments: a X ‘Number’ (required), and a Y ‘Number’ (required)
+
+		Restrictions: no robot initiated for name, and position available
+
+		Discussion:
+			Init a robot at the position if no robot already initiated.
+
+		Possible Responses:
+			102 => Robot takes position : None
+			202 => Robot already initiated : None
+			203 => Position already taken : None
+			301 => Critical error : None
+		
+	PAUSE 
+
+		Arguments: none
+
+		Restrictions: robot state needs to be play
+
+		Discussion: 
+			Pause the robot state
+
+		Possible Responses:
+			103 => Pause the robot state : None
+			204 => Robot state is already pause : None
+			301 => Critical error : None
+
+	PLAY 
+
+		Arguments: none
+
+		Restrictions: robot state needs to be paused
+
+		Discussion: 
+			Remove pause state from the robot
+
+		Possible Responses:
+			104 => Resume the robot state : None
+			205 => Robot state is already connected : None
+			301 => Critical error : None
+
+	SETPSEUDO 
+
+		Arguments: a robot’s name ‘String’ (required)
+
+		Restrictions: robot’s name available or disconnected
+
+		Discussion: 
+			Change the user current robot name and disconnect the old one.
+
+		Possible Responses:
+			105 => Robot name changed : None
+			201 => Robot name taken : None
+			301 => Critical error : None
+
+	TRANSFER 
+
+		Arguments: a robot’s name ‘String’ (required)
+
+		Restrictions: robot is connected
+
+		Discussion: 
+			Asks the given robot if it want your file, then proceed according
+			to the result.
+
+		Possible Responses:
+			106 => Transfer working : None
+			206 => Robot name not existing : None
+			207 => Robot state not connected : None
+			301 => Critical error : None
+
+	LASTUPDATE
+
+		Arguments: None
+
+		Restrictions: None
+
+		Discussion: 
+			Returns the date of the last update.
+
+		Possible Responses:
+			107 => Gives the last update date : Date
+			301 => Critical error : None
+
+	GETMAP
+
+		Arguments: None
+
+		Restrictions: None
+
+		Discussion: 
+			Return the robots positions.
+
+		Possible Responses:
+			108 => Give all robots positions : Map{[Int, Int]:String}
+			301 => Critical error : None
+
+	QUIT 
+
+		Arguments: None
+
+		Restrictions: None
+
+		Discussion: 
+			Disconnect the user and the robot’s state
+
+		Possible Responses:
+			109 => Successfully disconnected : None
+			301 => Critical error : None
+
+4. Optional ROBOT Commands
+
+	Robot commands.
+
+	GETATPOS 
+
+		Arguments: an X ‘Number’ (required), and an Y ‘Number’ (required)
+
+		Restrictions: None
+
+		Discussion:
+			Returns the resource of the given cell.
+
+		Possible Responses:
+			110 => Gives the resource : String
+			208 => No resource : None
+			301 => Critical error : None
+
+	MOVETO 
+
+		Arguments: an X ‘Number’ (required), an Y ‘Number’ (required)
+
+		Restrictions: robot initiated for name, and position available
+
+		Discussion:
+			If robot initiated, and position available move to position.
+
+		Possible Responses:
+			111 => Moves the robot position : None
+			209 => Position already taken : String
+			210 => Out of bound : None
+			301 => Critical error : None
+
+	APPSTATUS
+
+		Arguments: None
+
+		Restrictions: None
+
+		Discussion: 
+			Return the robot’s names with the list of the resources
+			they collected.
+
+		Possible Responses:
+			112 => Gives the list of robot with their given
+			resources : Map{String:[String]}
+			301 => Critical error : None
+
+5. Authors
+
+	Y. Gathignol 
+	EMail : yoann.gathignol@gmail.com
+
+	L. Gentillet
+	EMail : louise.gentillet@gmail.com
+
+	D. Guiraudet
+	Email : guiraudet@live.fr        
+
+	M. Orriere
+	EMail : matthieu.orriere@gmail.com
