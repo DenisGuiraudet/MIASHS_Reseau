@@ -1,59 +1,37 @@
-
 from socket import *
+import pickle
 import sys
-import datetime
 
-if len(sys.argv) != 2:
-    print(f"Usage: {sys.argv[0]} <port>", file=sys.stderr)
-    sys.exit(1)
+def storeClient(nomUser):
+    listeUser = {
+        nomUser : 0
+    }
+    with open('donnees.txt', 'wb') as fichier:
+        pick = pickle.Pickler(fichier)
+        pick.dump(nomUser)
+    with open('donnees.txt', 'rb') as fichier:
+        mon_depickler = pickle.Unpickler(fichier)
+        score_recupere = mon_depickler.load()
+        print (score_recupere)
 
-TAILLE_TAMPON = 256
 
-sock = socket(AF_INET, SOCK_DGRAM)
-print(f"{str(datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S'))} Server started", file=sys.stderr)
+#creation socket
+sock_server = socket()
+sock_server.bind(('',  int(sys.argv[1]) ))
+sock_server.listen(5)
 
-# Liaison de la socket à toutes les IP possibles de la machine
-sock.bind(("", int(sys.argv[1])))
-print(f"{str(datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S'))} Listen on :" + sys.argv[1], file=sys.stderr)
+sock_client, adr_client = sock_server.accept()
 
 while True:
-    try:
-        # Récupération de la requête du client
-        requete = sock.recvfrom(TAILLE_TAMPON)
+    cmd = sock_client.recv(255)
+    if cmd.decode().upper() == "CONNECT":
+        sock_client.send(b"Connexion ....")
+    else :
+        storeClient(cmd.decode().upper())
+        sock_client.send(b"Commande inexistante")
+    print(cmd.decode())
 
-        # Extraction du message et de l’adresse sur le client
-        (mess, adr_client) = requete
-        ip_client, port_client = adr_client
-
-        print(f"{datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')} Received {mess.decode()} from {ip_client}", file=sys.stderr)
-
-        # Construction de la réponse
-        reponse = mess.decode().upper()
-
-        if (reponse == "DATE"):
-            reponse = datetime.datetime.now().strftime('%d/%m/%y')
-        elif (reponse == "JOUR"):
-            reponse = datetime.datetime.now().strftime('%A')
-        elif (reponse == "MOIS"):
-            reponse = datetime.datetime.now().strftime('%B')
-        elif (reponse == "HEURE"):
-            reponse = datetime.datetime.now().strftime('%H:%M:%S')
-        elif (reponse == "PAQUES"):
-            reponse = "PAQUES"
-        elif (reponse == "ASCENSION"):
-            reponse = "ASCENSION"
-        elif (reponse == "HELP"):
-            reponse = "\r\n-DATE\r\n-JOUR\r\n-MOIS\r\n-HEURE\r\n-PAQUES\r\n-ASCENSION\r\n-HELP\r\n-QUIT"
-        elif (reponse == "QUIT"):
-            reponse = "QUIT"
-        else:
-            reponse = "Don't exist"
-
-        # Envoi de la réponse au client
-        sock.sendto(reponse.encode(), adr_client)
-
-    except KeyboardInterrupt: break
-
-sock.close()
-print(f"{str(datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S'))} Server stopped...", file=sys.stderr)
+sock_server.shutdown(SHUT_RDWR)
+for t in threading.enumerate():
+    if t != threading.main_thread(): t.join
 sys.exit(0)
