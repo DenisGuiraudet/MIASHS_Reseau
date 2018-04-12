@@ -208,8 +208,7 @@ while True:
 
     else :
         storeClient(adr_client[0],tab[0])
-        mapActu = getMap()
-        sock_client.send(str(mapActu).encode())
+        sock_client.send(b"Init ok")
 
     #print(cmd.decode())
 
