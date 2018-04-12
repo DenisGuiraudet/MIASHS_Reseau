@@ -1,19 +1,26 @@
 <template>
   <div class="grid-container">
     <div class="map img_cover">
-      <div v-for="(itemOuter, indexOuter) in myMap" v-bind:key="indexOuter" class="map_row">
-        <div v-for="(itemInner, indexInner) in itemOuter" v-bind:key="indexInner" class="map_column">
+      <div v-for="(itemOuter, indexOuter) in this.myMap" v-bind:key="indexOuter" class="map_row">
+        <div v-for="(itemInner, indexInner) in itemOuter" v-bind:key="itemInner[0] + indexInner" class="map_column">
           <div v-if="indexOuter === 5 && indexInner === 5" class="map_cell map_cell_player img_contain"></div>
-          <div v-else-if="itemInner !== ''" class="map_cell map_cell_other img_contain"></div>
+          <div v-else-if="itemInner instanceof Object" class="map_cell map_cell_other img_contain"></div>
           <div v-else class="map_cell"></div>
         </div>
       </div>
     </div>
     <div class="login">
-      IP : <input type="text" v-model="form.ip">
-      Port : <input type="text" v-model="form.port">
-      Pseudo : <input type="text" v-model="form.pseudo">
-      <button v-on:click="r_connect" type="button">Connect</button>
+      <div v-if="isConnected !== true" class="login_box">
+        Host : <input type="text" v-model="form.host">
+        Port : <input type="number" v-model="form.port">
+        Pseudo : <input type="text" v-model="form.pseudo">
+        <button v-on:click="r_connect" type="button">Connect</button>
+      </div>
+      <div v-else-if="isInit !== true" class="login_box">
+        X : <input type="text" v-model="form.x">
+        Y : <input type="number" v-model="form.y">
+        <button v-on:click="r_init" type="button">Init robot</button>
+      </div>
       <div class="textarea img_cover">
         <textarea name="name" readonly="true" v-model="form.error"></textarea>
       </div>
@@ -21,16 +28,16 @@
     <div class="move">
       <div class="move_row">
         <div class="empty"></div>
-        <button type="button" class="up">⬆</button>
+        <button v-on:click="r_up" type="button" class="up">⬆</button>
         <div class="empty"></div>
       </div>
       <div class="move_row">
-        <button type="button" class="left">⬅</button>
-        <button type="button" class="right">➡</button>
+        <button v-on:click="r_left" type="button" class="left">⬅</button>
+        <button v-on:click="r_right" type="button" class="right">➡</button>
       </div>
       <div class="move_row">
         <div class="empty"></div>
-        <button type="button" class="down">⬇</button>
+        <button v-on:click="r_down" type="button" class="down">⬇</button>
         <div class="empty"></div>
       </div>
     </div>
@@ -43,11 +50,14 @@ export default {
   name: 'Map',
   data () {
     return {
+      isConnected: false,
+      isInit: false,
       form: {
-        done: false,
-        ip: '',
-        port: '',
+        host: 'localhost',
+        port: 8080,
         pseudo: '',
+        x: 0,
+        y: 0,
         error: 'Errors : '
       },
       myMap: [],
@@ -65,15 +75,13 @@ export default {
   methods: {
     r_loop () {
       let tempMap = []
-      // -5 / +5
       for (let i = 0; i < 11; i++) {
         let tempArray = []
         for (let j = 0; j < 11; j++) {
-          tempArray.push('')
+          tempArray.push('X')
         }
         tempMap.push(tempArray)
       }
-      tempMap[5][5] = 'MDR'
       for (let elem in this.request) { // FIND YOUR ROBOT
         if (this.request[elem][0] === this.username) {
           this.center_x = this.request[elem][2].x
@@ -81,37 +89,65 @@ export default {
           break
         }
       }
+      console.log('this.center_x', this.center_x)
+      console.log('this.center_y', this.center_y)
       for (let elem in this.request) { // FIND OTHER ROBOT THAT ARE NEAR
         if (this.request[elem][2].x >= (this.center_x - 5) && this.request[elem][2].x <= (this.center_x + 5)) {
           if (this.request[elem][2].y >= (this.center_y - 5) && this.request[elem][2].y <= (this.center_y + 5)) {
             if (this.request[elem][0] !== this.username) {
-              console.log(this.request[elem])
+              this.request[elem][2].x -= 1
+              this.request[elem][2].y -= 1
+              console.log('this.request[elem][2].x', this.request[elem][2].x)
+              console.log('this.request[elem][2].y', this.request[elem][2].y)
               tempMap[this.request[elem][2].x - this.center_x + 5][this.request[elem][2].y - this.center_y + 5] = this.request[elem]
             }
           }
         }
       }
       this.myMap = tempMap
-      console.log(this.myMap)
     },
     r_connect () {
       console.log('r_connect')
+      // If true disable if finished
+      let that = this
+      this.r_loop()
+      this.loopR = setInterval(function () {
+        that.r_loop()
+      }, 5000)
+      this.isConnected = true
+    },
+    r_init () {
+      console.log('r_init')
+      this.isInit = true
     },
     r_up () {
-      console.log('r_connect')
+      console.log('r_up')
     },
     r_left () {
-      console.log('r_connect')
+      console.log('r_left')
     },
     r_right () {
-      console.log('r_connect')
+      console.log('r_right')
     },
     r_down () {
-      console.log('r_connect')
+      console.log('r_down')
     }
   },
   mounted () {
-    this.r_loop()
+    /* INIT MAP */
+    if (this.r_loop !== null) {
+      clearInterval(this.r_loop)
+    }
+    let tempMap = []
+    for (let i = 0; i < 11; i++) {
+      let tempArray = []
+      for (let j = 0; j < 11; j++) {
+        tempArray.push('X')
+      }
+      tempMap.push(tempArray)
+    }
+    this.myMap = tempMap
+    /* SETUP REQUEST */
   }
 }
 </script>
@@ -178,40 +214,48 @@ export default {
       }
 .login {
   grid-area: login;
-  background-color: green;
+  background-color: DarkGoldenRod;
   display: flex;
   flex-direction: column;
   padding: 10px;
   min-width: 200px;
 }
-  .login > input {
-    flex: 1;
-    max-height: 1.5rem;
-    margin: 10px 0;
-    background-color: ghostwhite;
-  }
-  .login > button {
-    font-size: 1.5rem;
-    background-color: darkgrey;
-    cursor: pointer;
-  }
-  .login > .textarea {
-    background-image: url(../assets/musk.jpg);
-    flex: 1;
+  .login > .login_box {
     display: flex;
-    margin-top: 10px;
+    flex-direction: column;
   }
-  .login > .textarea > textarea {
-    resize: none;
-    flex: 1;
-    background: none;
-    border: none;
-    margin: 5px;
-    color: ghostwhite;
-  }
+    .login > .login_box > input {
+      flex: 1;
+      width: 100%;
+      max-height: 1.5rem;
+      margin-bottom: 10px;
+      background-color: ghostwhite;
+    }
+    .login > .login_box > button {
+      font-size: 1.5rem;
+      background-color: darkgrey;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .login > .login_box > button:hover {
+      background-color: grey;
+    }
+    .login >  .textarea {
+      background-image: url(../assets/musk.jpg);
+      flex: 1;
+      display: flex;
+    }
+    .login > .textarea > textarea {
+      resize: none;
+      flex: 1;
+      background: none;
+      border: none;
+      margin: 5px;
+      color: ghostwhite;
+    }
 .move {
   grid-area: move;
-  background-color: red;
+  background-color: Chocolate ;
   display: flex;
   flex-direction: column;
   min-width: 200px;
@@ -224,16 +268,19 @@ export default {
     .move > .move_row > * {
       flex: 1;
       border: none;
-      margin: 5px;
+      margin: 2px;
     }
     .move > .move_row > .empty {
-      background-color: purple;
+      background-color: Brown ;
     }
     .move > .move_row > button {
       background-color: darkgrey;
       cursor: pointer;
       font-size: 1.5rem;
       line-height: 0;
+    }
+    .move > .move_row > button:hover {
+      background-color: grey;
     }
 @media (max-width: 600px) {
   .grid-container {
