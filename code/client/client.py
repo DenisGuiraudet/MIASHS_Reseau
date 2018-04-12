@@ -10,7 +10,7 @@ connectS.connect((sys.argv[1],  int(sys.argv[2]) ))
 connectS.send(sys.argv[3].encode())
 
 print("Connexion établie avec le serveur sur le port {}".format(port))
-
+#hey
 messageE = ""
 while messageE != b"fin":
     messageE = input("> ")
