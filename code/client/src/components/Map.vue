@@ -45,7 +45,6 @@
 </template>
 
 <script>
-
 export default {
   name: 'Map',
   data () {
@@ -106,14 +105,20 @@ export default {
       }
       this.myMap = tempMap
     },
-    r_connect () {
-      console.log('r_connect')
-      // If true disable if finished
+    forceLoop () {
+      if (this.r_loop !== null) {
+        clearInterval(this.r_loop)
+      }
       let that = this
       this.r_loop()
       this.loopR = setInterval(function () {
         that.r_loop()
       }, 5000)
+    },
+    r_connect () {
+      console.log('r_connect')
+      // If true disable if finished
+      this.forceLoop()
       this.isConnected = true
     },
     r_init () {
@@ -148,6 +153,28 @@ export default {
     }
     this.myMap = tempMap
     /* SETUP REQUEST */
+    // https://github.com/playay/ws2s
+    var ws = new WebSocket('wss://ws2s.feling.io/')
+    ws.onmessage = (event) => {
+      console.log('onmessage: ', event.data)
+    }
+    ws.onopen = () => {
+      console.log('onopen')
+      ws.send(JSON.stringify({
+        command: 'connect',
+        // host: 'feling.io',
+        // port: 80
+        host: this.form.host,
+        port: this.form.port
+      }))
+      ws.send(JSON.stringify({
+        command: 'send',
+        data: 'GET / HTTP/1.1\r\nHost: feling.io\r\nConnection: close\r\n\r\n'
+      }))
+    }
+    ws.onclose = () => {
+      console.log('onclose')
+    }
   }
 }
 </script>
