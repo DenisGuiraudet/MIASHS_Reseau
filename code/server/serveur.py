@@ -23,10 +23,10 @@ def initFile():
         with open('./donnees.json', 'wb') as fichier:
             pickle.dump(users,fichier)
 
-def initRobot(adr):
+def initRobot(adr,Tx,Ty):
     with open('./donnees.json', 'rb') as fichier:
         data = pickle.load(fichier)
-        data[adr][2] = {"x" : 1, "y" : 0, "res" : 0}
+        data[adr][2] = {"x" : Tx, "y" : Ty, "res" : 0}
     with open('./donnees.json','wb') as fichier:
         pickle.dump(data,fichier)
     with open('./donnees.json', 'rb') as fichier:
