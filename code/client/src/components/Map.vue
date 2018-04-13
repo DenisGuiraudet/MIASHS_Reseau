@@ -130,6 +130,7 @@ export default {
       console.log('r_up')
       this.center_x = this.center_x + 1
       this.forceLoop()
+      /* TEST */
     },
     r_down () {
       console.log('r_down')
