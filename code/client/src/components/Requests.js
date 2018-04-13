@@ -4,9 +4,9 @@ var client = new net.Socket();
 
 console.log("lol");
 
-client.connect(1337, '127.0.0.1', function() {
+client.connect(8060, 'localhost', function() {
   console.log('Connected');
-  client.write('Hello, server! Love, Client.');
+  client.write('GETMAP');
 });
 
 client.on('data', function(data) {
