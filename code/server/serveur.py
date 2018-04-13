@@ -135,7 +135,7 @@ def getMap():
             if value == "res":
                 pass
             else :
-                themap.append([data[value][2]['x'],data[value][2]['y']])
+                themap.append([data[value][0],data[value][2]['x'],data[value][2]['y']])
         return themap
 
 
