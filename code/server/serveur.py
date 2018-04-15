@@ -3,26 +3,26 @@ import pickle
 import sys,os, threading
 
 def storeClient(adr,nomUser):
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         if adr in data:
             pass
         else:
             if type(data) == dict:
                 data[adr] = [nomUser,"play","null"]
-    with open('./donnees.json','wb') as fichier:
+    with open('./donnees.data','wb') as fichier:
         pickle.dump(data,fichier)
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         print(data)
 
 def initFile():
     try:
-        with open('./donnees.json'):
+        with open('./donnees.data'):
             pass
     except IOError:
-        users = {"res" : "null", "192.168.1.1" : ["jo", "pause", {"x" : 0, "y" : 0, "res" : 0}]}
-        with open('./donnees.json', 'wb') as fichier:
+        users = {"res" : "null", "192.168.1.1" : ["jo", "pause", {"x" : 4, "y" : 3, "res" : 1}], "192.168.1.2" : ["miche", "pause", {"x" : 3, "y" : 4, "res" : 5}], "192.168.1.1" : ["jack", "pause", {"x" : -3, "y" : -2, "res" : 4}]}
+        with open('./donnees.data', 'wb') as fichier:
             pickle.dump(users,fichier)
 
 def initRobot(adr,Tx,Ty):
@@ -30,64 +30,64 @@ def initRobot(adr,Tx,Ty):
     if getPos(Tx,Ty) == 1:
         takeRes(Tx,Ty)
         isTaken = True
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         if isTaken == True:
             data[adr][2] = {"x" : Tx, "y" : Ty, "res" : 1}
         else :
             data[adr][2] = {"x" : Tx, "y" : Ty, "res" : 0}
-    with open('./donnees.json','wb') as fichier:
+    with open('./donnees.data','wb') as fichier:
         pickle.dump(data,fichier)
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         print(data)
 
 def takeRes(Tx,Ty):
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         print(data)
         if data["res"] == "null":
             data["res"] = [[Tx,Ty]]
         else:
             data["res"].append([Tx,Ty])
-    with open('./donnees.json','wb') as fichier:
+    with open('./donnees.data','wb') as fichier:
         pickle.dump(data,fichier)
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         print(data)
 
 def pauseClient(adr):
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         data[adr][1] = "pause"
-    with open('./donnees.json','wb') as fichier:
+    with open('./donnees.data','wb') as fichier:
         pickle.dump(data,fichier)
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         print(data)
 
 def playClient(adr):
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         data[adr][1] = "play"
-    with open('./donnees.json','wb') as fichier:
+    with open('./donnees.data','wb') as fichier:
         pickle.dump(data,fichier)
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         print(data)
 
 def setPseudo(adr,newPseudo):
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         data[adr][0] = newPseudo
-    with open('./donnees.json','wb') as fichier:
+    with open('./donnees.data','wb') as fichier:
         pickle.dump(data,fichier)
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         print(data)
 
 def getPos(Tx,Ty):
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         if data["res"] == "null":
             return 1
@@ -103,21 +103,21 @@ def moveTo(adr,Tx,Ty):
         takeRes(Tx,Ty)
         isTaken = True
 
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         data[adr][2]['x'] = Tx
         data[adr][2]['y'] = Ty
         if isTaken == True:
             data[adr][2]['res'] = data[adr][2]['res'] + 1
-    with open('./donnees.json','wb') as fichier:
+    with open('./donnees.data','wb') as fichier:
         pickle.dump(data,fichier)
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         print(data)
 
 def appStatus():
     mapStatus = {}
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         for value in data:
             if value == "res":
@@ -128,7 +128,7 @@ def appStatus():
 
 def getMap():
     themap = []
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         for value in data:
             if value == "res":
@@ -139,7 +139,7 @@ def getMap():
 
 def getMyPos(adr):
     mypos = []
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         mypos.append([data[adr][2]['x'],data[adr][2]['y']])
         return mypos
@@ -147,7 +147,7 @@ def getMyPos(adr):
 
 
 def isInit(adr):
-    with open('./donnees.json', 'rb') as fichier:
+    with open('./donnees.data', 'rb') as fichier:
         data = pickle.load(fichier)
         if data[adr][2] == "null":
             return False
