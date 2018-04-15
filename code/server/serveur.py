@@ -149,6 +149,14 @@ def traiter_client(client,adre):
     tab = cmd.decode().split(" ")
     print (tab)
 
+def isInit(adr):
+    with open('./donnees.json', 'rb') as fichier:
+        data = pickle.load(fichier)
+        if data[adr][2] == "null":
+            return False
+        else:
+            return True
+
 
     if tab[0].upper() == "INIT":
         if len(tab) != 3:
@@ -206,6 +214,10 @@ def traiter_client(client,adre):
 
     elif tab[0].upper() == "GETMYPOS":
         mapActu = getMyPos(adre)
+        client.send(str(mapActu).encode())
+
+    elif tab[0].upper() == "ISINIT":
+        mapActu = isInit(adre)
         client.send(str(mapActu).encode())
 
     elif tab[0].upper() == "CONNECT":
