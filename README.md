@@ -15,7 +15,7 @@ Ouvrir cmd et écrire :
   code/transmitter
 Ouvrir cmd et écrire :
    node transmitter.js
-
+```
  Aller dans :
   code/client
 Ouvrir cmd et écrire :
@@ -23,3 +23,4 @@ Ouvrir cmd et écrire :
    npm start
 Ouvrir navigateur et aller à l'adresse suivante :
   http://localhost:8080
+```
