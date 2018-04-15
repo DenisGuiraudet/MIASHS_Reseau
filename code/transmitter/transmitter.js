@@ -4,6 +4,7 @@ var url = require('url');
 
 http.createServer(function (req, res) {
   console.log('Connected to transmitter.js');
+
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Request-Method', '*');
@@ -15,6 +16,7 @@ http.createServer(function (req, res) {
     res.end();
     return;
   }
+
   var q = url.parse(req.url, true).query;
   console.log('QUERY :', q.QUERY);
 
@@ -30,16 +32,11 @@ http.createServer(function (req, res) {
     console.log('Received: ' + data);
     res.write(data);
     res.end();
-    // client.destroy(); // kill client after server's response
   });
 
   client.on('close', function() {
     console.log('Connection closed');
     client.destroy();
   });
-
-  // res.write(txt);
-
-  // res.end();
 
 }).listen(8070);

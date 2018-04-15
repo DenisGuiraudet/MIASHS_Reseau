@@ -53,8 +53,8 @@ export default {
       isConnected: false,
       isInit: false,
       form: {
-        host: 'localhost',
-        port: 8080,
+        host: 'http://localhost',
+        port: 8070,
         pseudo: '',
         x: 0,
         y: 0,
@@ -84,26 +84,39 @@ export default {
         }
         tempMap.push(tempArray)
       }
-      if (this.firstLoop === true) {
-        for (let elem in this.request) { // FIND YOUR ROBOT
-          if (this.request[elem][0] === this.username) {
-            this.center_x = this.request[elem][2].x
-            this.center_y = this.request[elem][2].y
-            break
+      let that = this
+      axios.get(this.form.host + ':' + this.form.port + '/', {
+        params: {
+          QUERY: ('APPSTATUS')
+        }})
+        .then(function (response) {
+          console.log(response.data)
+          console.log(response.data.replace(/'/g, '"'))
+          console.log(JSON.parse(response.data.replace(/'/g, '"')))
+          if (that.firstLoop === true) {
+            for (let elem in that.request) { // FIND YOUR ROBOT
+              if (that.request[elem][0] === that.username) {
+                that.center_x = that.request[elem][2].x
+                that.center_y = that.request[elem][2].y
+                break
+              }
+            }
+            that.firstLoop = false
           }
-        }
-        this.firstLoop = false
-      }
-      for (let elem in this.request) { // FIND OTHER ROBOT THAT ARE NEAR
-        if (this.request[elem][2].x >= (this.center_x - 5) && this.request[elem][2].x <= (this.center_x + 5)) {
-          if (this.request[elem][2].y >= (this.center_y - 5) && this.request[elem][2].y <= (this.center_y + 5)) {
-            if (this.request[elem][0] !== this.username) {
-              tempMap[this.request[elem][2].x - this.center_x + 5][this.request[elem][2].y - this.center_y + 5] = this.request[elem]
+          for (let elem in this.request) { // FIND OTHER ROBOT THAT ARE NEAR
+            if (that.request[elem][2].x >= (that.center_x - 5) && that.request[elem][2].x <= (that.center_x + 5)) {
+              if (that.request[elem][2].y >= (that.center_y - 5) && that.request[elem][2].y <= (that.center_y + 5)) {
+                if (that.request[elem][0] !== that.username) {
+                  tempMap[that.request[elem][2].x - that.center_x + 5][that.request[elem][2].y - that.center_y + 5] = that.request[elem]
+                }
+              }
             }
           }
-        }
-      }
-      this.myMap = tempMap
+          that.myMap = tempMap
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
     },
     forceLoop () {
       if (this.isConnected === true) {
@@ -119,9 +132,19 @@ export default {
     },
     r_connect () {
       console.log('r_connect')
-      // If true disable if finished
-      this.isConnected = true
-      this.forceLoop()
+      let that = this
+      axios.get(this.form.host + ':' + this.form.port + '/', {
+        params: {
+          QUERY: ('CONNECT ' + this.form.pseudo)
+        }})
+        .then(function (response) {
+          console.log(response)
+          that.isConnected = true
+          that.forceLoop()
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
     },
     r_init () {
       console.log('r_init')
@@ -129,33 +152,35 @@ export default {
     },
     r_up () {
       console.log('r_up')
-      this.center_x = this.center_x + 1
-      this.forceLoop()
+      this.move(1, 0)
     },
     r_down () {
       console.log('r_down')
-      this.center_x = this.center_x - 1
-      // this.forceLoop()
-      axios.get('http://localhost:8070/', {
+      this.move(-1, 0)
+    },
+    r_left () {
+      console.log('r_left')
+      this.move(0, 1)
+    },
+    r_right () {
+      console.log('r_right')
+      this.move(0, -1)
+    },
+    move (shiftX, shiftY) {
+      console.log('move', shiftX, shiftY)
+      let that = this
+      axios.get(this.form.host + ':' + this.form.port + '/', {
         params: {
-          QUERY: 'APPSTATUS'
+          QUERY: ('MOVETO ' + (this.center_x + shiftX) + ' ' + (this.center_y + shiftY))
         }})
         .then(function (response) {
           console.log(response)
+          that.isConnected = true
+          that.forceLoop()
         })
         .catch(function (error) {
           console.log(error)
         })
-    },
-    r_left () {
-      console.log('r_left')
-      this.center_y = this.center_y + 1
-      this.forceLoop()
-    },
-    r_right () {
-      console.log('r_right')
-      this.center_y = this.center_y - 1
-      this.forceLoop()
     }
   },
   mounted () {
