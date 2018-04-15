@@ -5,16 +5,18 @@
 Avoir python + node.js
 
 ## Faire marcher
-
+```
 Aller dans :
   code/server
 Ouvrir cmd et écrire :
   python serveur.py 8060
- 
+```
+```
  Aller dans :
   code/transmitter
 Ouvrir cmd et écrire :
    node transmitter.js
+```
 ```
  Aller dans :
   code/client
