@@ -1,10 +1,10 @@
 # MIASHS_Reseau
 
 ## Prérequis
-
+```
 Avoir python + node.js
-
-## Faire marcher
+```
+## Lancer
 ```
 Aller dans :
   code/server
