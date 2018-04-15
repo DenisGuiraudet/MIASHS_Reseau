@@ -45,6 +45,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   name: 'Map',
   data () {
@@ -157,6 +158,13 @@ export default {
       console.log('r_down')
       this.center_x = this.center_x - 1
       this.forceLoop()
+      axios.get('/user?ID=12345')
+        .then(function (response) {
+          console.log(response)
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
     },
     r_left () {
       console.log('r_left')
