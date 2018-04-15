@@ -158,7 +158,10 @@ export default {
       console.log('r_down')
       this.center_x = this.center_x - 1
       this.forceLoop()
-      axios.get('/user?ID=12345')
+      axios.get('http://localhost:8070/', {
+        params: {
+          ID: 12345
+        }})
         .then(function (response) {
           console.log(response)
         })
