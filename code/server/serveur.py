@@ -18,10 +18,12 @@ def storeClient(adr,nomUser):
 
 def initFile():
     try:
-        with open('./donnees.data'):
+        with open('./donnees.data','rb'):
             pass
     except IOError:
-        users = {"res" : "null", "192.168.1.1" : ["jo", "pause", {"x" : 4, "y" : 3, "res" : 1}], "192.168.1.2" : ["miche", "pause", {"x" : 3, "y" : 4, "res" : 5}], "192.168.1.1" : ["jack", "pause", {"x" : -3, "y" : -2, "res" : 4}]}
+        users = {"res" : "null", "192.168.1.1" : ["jo", "pause", {"x" : 4, "y" : 3, "res" : 1}],
+                                 "192.168.1.2" : ["miche", "pause", {"x" : 3, "y" : 4, "res" : 5}],
+                                 "192.168.1.1" : ["jack", "pause", {"x" : -3, "y" : -2, "res" : 4}]}
         with open('./donnees.data', 'wb') as fichier:
             pickle.dump(users,fichier)
 
