@@ -6,6 +6,17 @@ var net = require('net');
 var client = new net.Socket();
 
 http.createServer(function (req, res) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Request-Method', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+  res.setHeader('Access-Control-Allow-Headers', '*');
+  res.writeHead(200, {'Content-Type': 'application/json'});
+  if ( req.method === 'OPTIONS' ) {
+    res.writeHead(200);
+    res.end();
+    return;
+  }
   var q = url.parse(req.url, true).query;
   console.log('oui');
 

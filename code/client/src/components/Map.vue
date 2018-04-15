@@ -131,33 +131,11 @@ export default {
       console.log('r_up')
       this.center_x = this.center_x + 1
       this.forceLoop()
-      /* TEST */
-      var ws = new WebSocket('wss://ws2s.feling.io/')
-      ws.onmessage = (event) => {
-        console.log('onmessage: ', event.data)
-      }
-      ws.onopen = () => {
-        console.log('onopen')
-        ws.send(JSON.stringify({
-          command: 'connect',
-          host: this.form.host,
-          port: this.form.port
-          // host: 'feling.io',
-          // port: 80
-        }))
-        ws.send(JSON.stringify({
-          command: 'send',
-          data: 'GET / HTTP/1.1\r\nHost: feling.io\r\nConnection: close\r\n\r\n'
-        }))
-      }
-      ws.onclose = () => {
-        console.log('onclose')
-      }
     },
     r_down () {
       console.log('r_down')
       this.center_x = this.center_x - 1
-      this.forceLoop()
+      // this.forceLoop()
       axios.get('http://localhost:8070/', {
         params: {
           ID: 12345
