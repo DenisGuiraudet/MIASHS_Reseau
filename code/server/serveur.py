@@ -217,8 +217,8 @@ def traiter_client(client,adre):
         client.send(str(mapActu).encode())
 
     elif tab[0].upper() == "ISINIT":
-        isInit = isInit(adre)
-        client.send(str(isInit).encode())
+        isInitV = isInit(adre)
+        client.send(str(isInitV).encode())
 
     elif tab[0].upper() == "CONNECT":
         storeClient(adre,tab[0])

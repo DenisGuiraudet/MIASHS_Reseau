@@ -69,8 +69,7 @@ export default {
         '127.0.0.2': ['Michel', 'play', {'x': 4, 'y': 5, 'res': 5}],
         '127.0.0.3': ['Billy', 'play', {'x': 6, 'y': 3, 'res': 3}],
         '127.0.0.4': ['Oui', 'play', {'x': 16, 'y': 3, 'res': 3}]
-      },
-      firstLoop: true
+      }
     }
   },
   methods: {
@@ -89,19 +88,20 @@ export default {
         params: {
           QUERY: ('APPSTATUS')
         }})
-        .then(function (response) {
-          console.log(JSON.parse(response.data.replace(/'/g, '"')))
-          if (that.firstLoop === true) {
-            for (let elem in that.request) { // FIND YOUR ROBOT
-              if (that.request[elem][0] === that.username) {
-                that.center_x = that.request[elem][2].x
-                that.center_y = that.request[elem][2].y
-                break
-              }
-            }
-            that.firstLoop = false
-          }
-          for (let elem in this.request) { // FIND OTHER ROBOT THAT ARE NEAR
+        .then(function (response1) {
+          console.log(JSON.parse(response1.data.replace(/'/g, '"')))
+          that.request = JSON.parse(response1.data.replace(/'/g, '"'))
+          axios.get(this.form.host + ':' + this.form.port + '/', {
+            params: {
+              QUERY: ('GETMYPOS ' + this.form.pseudo)
+            }})
+            .then(function (response2) {
+              console.log(response2)
+            })
+            .catch(function (error) {
+              console.log(error)
+            })
+          for (let elem in that.request) { // FIND OTHER ROBOT THAT ARE NEAR
             if (that.request[elem][2].x >= (that.center_x - 5) && that.request[elem][2].x <= (that.center_x + 5)) {
               if (that.request[elem][2].y >= (that.center_y - 5) && that.request[elem][2].y <= (that.center_y + 5)) {
                 /* if (that.request[elem][0] !== that.username) {
@@ -136,10 +136,21 @@ export default {
         params: {
           QUERY: ('CONNECT ' + this.form.pseudo)
         }})
-        .then(function (response) {
-          console.log(response)
+        .then(function (response1) {
+          console.log(response1)
           that.isConnected = true
-          that.forceLoop()
+          axios.get(that.form.host + ':' + that.form.port + '/', {
+            params: {
+              QUERY: ('ISINIT')
+            }})
+            .then(function (response2) {
+              console.log(response2)
+              that.isInit = true
+              that.forceLoop()
+            })
+            .catch(function (error) {
+              console.log(error)
+            })
         })
         .catch(function (error) {
           console.log(error)
@@ -184,14 +195,14 @@ export default {
         params: {
           QUERY: ('GETMYPOS')
         }})
-        .then(function (response) {
-          console.log(response)
+        .then(function (response1) {
+          console.log(response1)
           axios.get(this.form.host + ':' + this.form.port + '/', {
             params: {
               QUERY: ('MOVETO ' + (this.center_x + shiftX) + ' ' + (this.center_y + shiftY))
             }})
-            .then(function (response) {
-              console.log(response)
+            .then(function (response2) {
+              console.log(response2)
               that.isConnected = true
             })
             .catch(function (error) {
