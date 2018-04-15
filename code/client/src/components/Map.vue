@@ -89,17 +89,15 @@ export default {
           QUERY: ('GETMAP')
         }})
         .then(function (response1) {
-          console.log(JSON.parse(response1.data.replace(/'/g, '"')))
           that.request = JSON.parse(response1.data.replace(/'/g, '"'))
           axios.get(that.form.host + ':' + that.form.port + '/', {
             params: {
               QUERY: ('GETMYPOS ' + that.form.pseudo)
             }})
             .then(function (response2) {
-              console.log(JSON.parse(response2.data.replace(/'/g, '"')))
               let center = JSON.parse(response2.data.replace(/'/g, '"'))
               that.center_x = parseInt(center[0][0])
-              that.center_x = parseInt(center[0][1])
+              that.center_y = parseInt(center[0][1])
               for (let elem in that.request) { // FIND OTHER ROBOT THAT ARE NEAR
                 if (parseInt(that.request[elem][1]) >= (that.center_x - 5) && parseInt(that.request[elem][1]) <= (that.center_x + 5)) {
                   if (parseInt(that.request[elem][2]) >= (that.center_y - 5) && parseInt(that.request[elem][2]) <= (that.center_y + 5)) {
@@ -108,7 +106,6 @@ export default {
                 }
               }
               that.myMap = tempMap
-              console.log(that.myMap)
             })
             .catch(function (error) {
               console.log(error)
@@ -120,14 +117,15 @@ export default {
     },
     forceLoop () {
       if (this.isConnected === true) {
-        if (this.r_loop !== null) {
-          clearInterval(this.r_loop)
+        if (this.loopR !== null) {
+          clearInterval(this.loopR)
+          this.loopR = null
         }
         this.r_loop()
         let that = this
         this.loopR = setInterval(function () {
           that.r_loop()
-        }, 5000)
+        }, 500)
       }
     },
     r_connect () {
@@ -138,14 +136,12 @@ export default {
           QUERY: ('CONNECT ' + this.form.pseudo)
         }})
         .then(function (response1) {
-          console.log(response1)
           that.isConnected = true
           axios.get(that.form.host + ':' + that.form.port + '/', {
             params: {
               QUERY: ('ISINIT')
             }})
             .then(function (response2) {
-              console.log(response2)
               if (response2.data === 'True') {
                 that.isInit = true
                 that.forceLoop()
@@ -167,7 +163,6 @@ export default {
           QUERY: ('INIT ' + this.form.x + ' ' + this.form.y)
         }})
         .then(function (response) {
-          console.log(response)
           that.isInit = true
           that.forceLoop()
         })
@@ -177,37 +172,38 @@ export default {
     },
     r_up () {
       console.log('r_up')
-      this.move(1, 0)
+      this.move(-1, 0)
     },
     r_down () {
       console.log('r_down')
-      this.move(-1, 0)
+      this.move(1, 0)
     },
     r_left () {
       console.log('r_left')
-      this.move(0, 1)
+      this.move(0, -1)
     },
     r_right () {
       console.log('r_right')
-      this.move(0, -1)
+      this.move(0, 1)
     },
     move (shiftX, shiftY) {
       if (this.isConnected && this.isInit) {
-        console.log('move', shiftX, shiftY)
         let that = this
         axios.get(this.form.host + ':' + this.form.port + '/', {
           params: {
             QUERY: ('GETMYPOS')
           }})
           .then(function (response1) {
-            console.log(response1)
+            let center = JSON.parse(response1.data.replace(/'/g, '"'))
+            that.center_x = parseInt(center[0][0])
+            that.center_y = parseInt(center[0][1])
             axios.get(that.form.host + ':' + that.form.port + '/', {
               params: {
                 QUERY: ('MOVETO ' + (that.center_x + shiftX) + ' ' + (that.center_y + shiftY))
+                // QUERY: ('MOVETO 3 3')
               }})
               .then(function (response2) {
-                console.log(response2)
-                that.isConnected = true
+                that.forceLoop()
               })
               .catch(function (error) {
                 console.log(error)
