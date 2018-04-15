@@ -217,8 +217,8 @@ def isInit(adr):
         client.send(str(mapActu).encode())
 
     elif tab[0].upper() == "ISINIT":
-        mapActu = isInit(adre)
-        client.send(str(mapActu).encode())
+        isInit = isInit(adre)
+        client.send(str(isInit).encode())
 
     elif tab[0].upper() == "CONNECT":
         storeClient(adre,tab[0])
