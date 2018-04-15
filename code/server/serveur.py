@@ -145,9 +145,9 @@ sock_server.bind(('',  int(sys.argv[1]) ))
 sock_server.listen(5)
 
 initFile()
-sock_client, adr_client = sock_server.accept()
 
 while True:
+    sock_client, adr_client = sock_server.accept()
     cmd = sock_client.recv(255)
     tab = cmd.decode().split(" ")
     print (tab)
