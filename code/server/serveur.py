@@ -144,10 +144,7 @@ def getMyPos(adr):
         mypos.append([data[adr][2]['x'],data[value][2]['y']])
         return mypos
 
-def traiter_client(client,adre):
-    cmd = client.recv(255)
-    tab = cmd.decode().split(" ")
-    print (tab)
+
 
 def isInit(adr):
     with open('./donnees.json', 'rb') as fichier:
@@ -157,7 +154,10 @@ def isInit(adr):
         else:
             return True
 
-
+def traiter_client(client,adre):
+    cmd = client.recv(255)
+    tab = cmd.decode().split(" ")
+    print (tab)
     if tab[0].upper() == "INIT":
         if len(tab) != 3:
             client.send(b"Nombre parametre incorrect .... NOK")
