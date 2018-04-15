@@ -7,9 +7,6 @@ port = 8080
 connectS = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 connectS.connect((sys.argv[1],  int(sys.argv[2]) ))
 
-connectS.send(sys.argv[3].encode())
-messageR = connectS.recv(1024)
-
 print("Connexion établie avec le serveur sur le port {}".format(port))
 #hey
 messageE = ""

@@ -1,9 +1,8 @@
 from socket import *
 import pickle
-import sys,os
+import sys,os, threading
 
 def storeClient(adr,nomUser):
-    ## TODO: Verif si c'est le bon user avec l'IP et le nom
     with open('./donnees.json', 'rb') as fichier:
         data = pickle.load(fichier)
         if adr in data:
@@ -138,6 +137,90 @@ def getMap():
                 themap.append([data[value][0],data[value][2]['x'],data[value][2]['y']])
         return themap
 
+def getMyPos(adr):
+    mypos = []
+    with open('./donnees.json', 'rb') as fichier:
+        data = pickle.load(fichier)
+        mypos.append([data[adr][2]['x'],data[value][2]['y']])
+        return mypos
+
+def traiter_client(client,adre):
+    cmd = client.recv(255)
+    tab = cmd.decode().split(" ")
+    print (tab)
+
+
+    if tab[0].upper() == "INIT":
+        if len(tab) != 3:
+            client.send(b"Nombre parametre incorrect .... NOK")
+        else:
+            initRobot(adre,tab[1],tab[2])
+            client.send(b"Initialisation .... OK")
+
+
+    elif tab[0].upper() == "PAUSE":
+        pauseClient(adre)
+        client.send(b"Mise en pause .... OK")
+
+
+    elif tab[0].upper() == "PLAY":
+        playClient(adre)
+        client.send(b"Mise en jeu .... OK")
+
+
+    elif tab[0].upper() == "TAKERES":
+        takeRes(tab[1],tab[2])
+        client.send(b"Recolte .... OK")
+
+
+    elif tab[0].upper() == "SETPSEUDO":
+        if len(tab) != 2:
+            client.send(b"Nombre parametre incorrect .... NOK")
+        else:
+            setPseudo(adre,tab[1])
+            client.send(b"Changement de pseudo .... OK")
+
+
+    elif tab[0].upper() == "GETATPOS":
+        if len(tab) != 3:
+            client.send(b"Nombre parametre incorrect .... NOK")
+        else :
+            val = getPos(tab[1],tab[2])
+            client.send(str(val).encode())
+
+    elif tab[0].upper() == "MOVETO":
+        if len(tab) != 3:
+            client.send(b"Nombre parametre incorrect .... NOK")
+        else :
+            moveTo(adre,tab[1],tab[2])
+            client.send(b"Deplacement ..... OK")
+
+    elif tab[0].upper() == "APPSTATUS":
+        mapStat = appStatus()
+        client.send(str(mapStat).encode())
+
+    elif tab[0].upper() == "GETMAP":
+        print("hey")
+        mapActu = getMap()
+        client.send(str(mapActu).encode())
+
+    elif tab[0].upper() == "GETMYPOS":
+        mapActu = getMyPos(adre)
+        client.send(str(mapActu).encode())
+
+    elif tab[0].upper() == "CONNECT":
+        storeClient(adre,tab[0])
+        client.send(b"Init ok")
+
+    else :
+        client.send(b"Commande Inconnu")
+
+    client.close()
+
+
+
+
+
 
 #creation socket
 sock_server = socket()
@@ -148,67 +231,10 @@ initFile()
 
 while True:
     sock_client, adr_client = sock_server.accept()
-    cmd = sock_client.recv(255)
-    tab = cmd.decode().split(" ")
-    print (tab)
+    threading.Thread(target=traiter_client, args=(sock_client,adr_client[0],)) \
+        .start()
 
 
-    if tab[0].upper() == "INIT":
-        if len(tab) != 3:
-            sock_client.send(b"Nombre parametre incorrect .... NOK")
-        else:
-            initRobot(adr_client[0],tab[1],tab[2])
-            sock_client.send(b"Initialisation .... OK")
-
-
-    elif tab[0].upper() == "PAUSE":
-        pauseClient(adr_client[0])
-        sock_client.send(b"Mise en pause .... OK")
-
-
-    elif tab[0].upper() == "PLAY":
-        playClient(adr_client[0])
-        sock_client.send(b"Mise en jeu .... OK")
-
-
-    elif tab[0].upper() == "TAKERES":
-        takeRes(tab[1],tab[2])
-        sock_client.send(b"Recolte .... OK")
-
-
-    elif tab[0].upper() == "SETPSEUDO":
-        if len(tab) != 2:
-            sock_client.send(b"Nombre parametre incorrect .... NOK")
-        else:
-            setPseudo(adr_client[0],tab[1])
-            sock_client.send(b"Changement de pseudo .... OK")
-
-
-    elif tab[0].upper() == "GETATPOS":
-        if len(tab) != 3:
-            sock_client.send(b"Nombre parametre incorrect .... NOK")
-        else :
-            val = getPos(tab[1],tab[2])
-            sock_client.send(str(val).encode())
-
-    elif tab[0].upper() == "MOVETO":
-        if len(tab) != 3:
-            sock_client.send(b"Nombre parametre incorrect .... NOK")
-        else :
-            moveTo(adr_client[0],tab[1],tab[2])
-            sock_client.send(b"Deplacement ..... OK")
-
-    elif tab[0].upper() == "APPSTATUS":
-        mapStat = appStatus()
-        sock_client.send(str(mapStat).encode())
-
-    elif tab[0].upper() == "GETMAP":
-        mapActu = getMap()
-        sock_client.send(str(mapActu).encode())
-
-    else :
-        storeClient(adr_client[0],tab[0])
-        sock_client.send(b"Init ok")
 
     #print(cmd.decode())
 
