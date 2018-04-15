@@ -86,32 +86,33 @@ export default {
       let that = this
       axios.get(this.form.host + ':' + this.form.port + '/', {
         params: {
-          QUERY: ('APPSTATUS')
+          QUERY: ('GETMAP')
         }})
         .then(function (response1) {
           console.log(JSON.parse(response1.data.replace(/'/g, '"')))
           that.request = JSON.parse(response1.data.replace(/'/g, '"'))
-          axios.get(this.form.host + ':' + this.form.port + '/', {
+          axios.get(that.form.host + ':' + that.form.port + '/', {
             params: {
-              QUERY: ('GETMYPOS ' + this.form.pseudo)
+              QUERY: ('GETMYPOS ' + that.form.pseudo)
             }})
             .then(function (response2) {
-              console.log(response2)
+              console.log(JSON.parse(response2.data.replace(/'/g, '"')))
+              let center = JSON.parse(response2.data.replace(/'/g, '"'))
+              that.center_x = parseInt(center[0][0])
+              that.center_x = parseInt(center[0][1])
+              for (let elem in that.request) { // FIND OTHER ROBOT THAT ARE NEAR
+                if (parseInt(that.request[elem][1]) >= (that.center_x - 5) && parseInt(that.request[elem][1]) <= (that.center_x + 5)) {
+                  if (parseInt(that.request[elem][2]) >= (that.center_y - 5) && parseInt(that.request[elem][2]) <= (that.center_y + 5)) {
+                    tempMap[parseInt(that.request[elem][1]) - that.center_x + 5][parseInt(that.request[elem][2]) - that.center_y + 5] = that.request[elem]
+                  }
+                }
+              }
+              that.myMap = tempMap
+              console.log(that.myMap)
             })
             .catch(function (error) {
               console.log(error)
             })
-          for (let elem in that.request) { // FIND OTHER ROBOT THAT ARE NEAR
-            if (that.request[elem][2].x >= (that.center_x - 5) && that.request[elem][2].x <= (that.center_x + 5)) {
-              if (that.request[elem][2].y >= (that.center_y - 5) && that.request[elem][2].y <= (that.center_y + 5)) {
-                /* if (that.request[elem][0] !== that.username) {
-                  tempMap[that.request[elem][2].x - that.center_x + 5][that.request[elem][2].y - that.center_y + 5] = that.request[elem]
-                } */
-                tempMap[that.request[elem][2].x - that.center_x + 5][that.request[elem][2].y - that.center_y + 5] = that.request[elem]
-              }
-            }
-          }
-          that.myMap = tempMap
         })
         .catch(function (error) {
           console.log(error)
@@ -145,8 +146,10 @@ export default {
             }})
             .then(function (response2) {
               console.log(response2)
-              that.isInit = true
-              that.forceLoop()
+              if (response2.data === 'True') {
+                that.isInit = true
+                that.forceLoop()
+              }
             })
             .catch(function (error) {
               console.log(error)
@@ -189,29 +192,31 @@ export default {
       this.move(0, -1)
     },
     move (shiftX, shiftY) {
-      console.log('move', shiftX, shiftY)
-      let that = this
-      axios.get(this.form.host + ':' + this.form.port + '/', {
-        params: {
-          QUERY: ('GETMYPOS')
-        }})
-        .then(function (response1) {
-          console.log(response1)
-          axios.get(this.form.host + ':' + this.form.port + '/', {
-            params: {
-              QUERY: ('MOVETO ' + (this.center_x + shiftX) + ' ' + (this.center_y + shiftY))
-            }})
-            .then(function (response2) {
-              console.log(response2)
-              that.isConnected = true
-            })
-            .catch(function (error) {
-              console.log(error)
-            })
-        })
-        .catch(function (error) {
-          console.log(error)
-        })
+      if (this.isConnected && this.isInit) {
+        console.log('move', shiftX, shiftY)
+        let that = this
+        axios.get(this.form.host + ':' + this.form.port + '/', {
+          params: {
+            QUERY: ('GETMYPOS')
+          }})
+          .then(function (response1) {
+            console.log(response1)
+            axios.get(that.form.host + ':' + that.form.port + '/', {
+              params: {
+                QUERY: ('MOVETO ' + (that.center_x + shiftX) + ' ' + (that.center_y + shiftY))
+              }})
+              .then(function (response2) {
+                console.log(response2)
+                that.isConnected = true
+              })
+              .catch(function (error) {
+                console.log(error)
+              })
+          })
+          .catch(function (error) {
+            console.log(error)
+          })
+      }
     }
   },
   mounted () {

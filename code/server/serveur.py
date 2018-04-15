@@ -141,7 +141,7 @@ def getMyPos(adr):
     mypos = []
     with open('./donnees.json', 'rb') as fichier:
         data = pickle.load(fichier)
-        mypos.append([data[adr][2]['x'],data[value][2]['y']])
+        mypos.append([data[adr][2]['x'],data[adr][2]['y']])
         return mypos
 
 
