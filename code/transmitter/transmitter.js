@@ -2,10 +2,8 @@
 var http = require('http');
 var url = require('url');
 
-var net = require('net');
-var client = new net.Socket();
-
 http.createServer(function (req, res) {
+  console.log('Connected to transmitter.js');
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Request-Method', '*');
@@ -18,28 +16,30 @@ http.createServer(function (req, res) {
     return;
   }
   var q = url.parse(req.url, true).query;
-  console.log('oui');
+  console.log('QUERY :', q.QUERY);
 
-  var txt = ("test" + q.ID);
-/*
+  var net = require('net');
+  var client = new net.Socket();
+
   client.connect(8060, 'localhost', function() {
-    console.log('Connected');
-    client.write('GETMAP');
+    console.log('Connected to client.js');
+    client.write(q.QUERY);
   });
 
   client.on('data', function(data) {
     console.log('Received: ' + data);
-    res.end(data);
+    res.write(data);
+    res.end();
     // client.destroy(); // kill client after server's response
   });
 
   client.on('close', function() {
     console.log('Connection closed');
     client.destroy();
-  });*/
+  });
 
-  res.write(txt);
+  // res.write(txt);
 
-  res.end();
+  // res.end();
 
 }).listen(8070);

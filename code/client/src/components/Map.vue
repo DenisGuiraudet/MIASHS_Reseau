@@ -138,7 +138,7 @@ export default {
       // this.forceLoop()
       axios.get('http://localhost:8070/', {
         params: {
-          ID: 12345
+          QUERY: 'APPSTATUS'
         }})
         .then(function (response) {
           console.log(response)
